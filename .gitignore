@@ -1,0 +1,6 @@
+# models live in ~/models (host-mounted), never in the repo
+*.gguf
+
+node_modules/
+*.log
+.DS_Store

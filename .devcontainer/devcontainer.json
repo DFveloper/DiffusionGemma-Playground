@@ -1,0 +1,19 @@
+{
+  "name": "diffusion-gemma-chat",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "forwardPorts": [8090],
+  "portsAttributes": {
+    "8090": { "label": "diffusion chat", "onAutoForward": "openBrowser" }
+  },
+  "containerEnv": {
+    // Host path of the GGUF dir — passed to `docker run -v`, which the HOST
+    // daemon resolves (docker-outside-of-docker), so this must be a host path.
+    "MODELS_HOST_DIR": "${localEnv:HOME}/models",
+    "BACKEND_IMAGE": "diffusion-gemma:latest",
+    "MODEL_FILE": "diffusiongemma-26B-A4B-it-Q4_K_M.gguf"
+  },
+  "postStartCommand": "nohup node chat/server.mjs > /tmp/chat-server.log 2>&1 &"
+}
