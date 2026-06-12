@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         vulkan-tools \
         glslang-tools \
         libshaderc-dev \
+        glslc \
+        glslang-tools \
+        spirv-tools \
+        shaderc\
         ca-certificates \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
