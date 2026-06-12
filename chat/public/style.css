@@ -1,0 +1,194 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #11151f;
+  --panel-2: #161b29;
+  --fg: #d6dbe7;
+  --dim: #5c6478;
+  --accent: #7aa2ff;
+  --fresh: #b3ffd1;
+  --thought: #9a86c8;
+  font-size: 15px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Iosevka", "JetBrains Mono", "Cascadia Code", monospace;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--panel-2);
+}
+header h1 { font-size: 1.05rem; margin: 0; letter-spacing: 0.05em; }
+.accent { color: var(--accent); }
+#model-info { color: var(--dim); font-size: 0.75rem; flex: 1; }
+#status { font-size: 0.75rem; padding: 0.1rem 0.6rem; border-radius: 999px; }
+#status.idle { color: var(--dim); border: 1px solid var(--dim); }
+#status.busy { color: var(--accent); border: 1px solid var(--accent); animation: pulse 1.2s infinite; }
+#status.error { color: #ff8080; border: 1px solid #ff8080; }
+@keyframes pulse { 50% { opacity: 0.4; } }
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* ---------- messages ---------- */
+
+.msg {
+  max-width: 94%;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  word-break: break-word;
+}
+.msg.user { align-self: flex-end; background: #1d2840; white-space: pre-wrap; }
+.msg.assistant { align-self: flex-start; background: var(--panel-2); width: 94%; }
+.msg.assistant.error { color: #ff9b9b; }
+
+/* system divider (context lost, restarts) */
+.notice {
+  align-self: center;
+  color: var(--dim);
+  font-size: 0.7rem;
+  padding: 0.1rem 0.8rem;
+  border-top: 1px solid var(--panel-2);
+  border-bottom: 1px solid var(--panel-2);
+}
+
+/* the in-bubble denoising canvas */
+.dcanvas {
+  margin: 0.15rem 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: pre;
+  overflow-x: auto;
+  background:
+    radial-gradient(ellipse at top left, rgba(122, 162, 255, 0.05), transparent 60%);
+  border-radius: 6px;
+}
+.dcanvas .f { color: var(--fresh); text-shadow: 0 0 8px rgba(179, 255, 209, 0.5); } /* freshly denoised */
+
+.dstatus { color: var(--dim); font-size: 0.75rem; animation: pulse 1.2s infinite; }
+
+/* settled answer */
+.answer { white-space: pre-wrap; }
+details.thought { margin-bottom: 0.4rem; }
+details.thought summary { cursor: pointer; color: var(--thought); font-size: 0.72rem; }
+details.thought pre {
+  margin: 0.3rem 0 0; padding: 0.5rem; font-size: 0.72rem; color: var(--thought);
+  background: rgba(154, 134, 200, 0.07); border-radius: 6px; white-space: pre-wrap;
+}
+
+/* per-message denoising timeline — sits ABOVE the content so the canvas can
+   grow/shrink below it without moving the controls */
+.afoot {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(92, 100, 120, 0.25);
+  font-size: 0.68rem;
+  color: var(--dim);
+}
+/* reserve the bar's space before the first frame so nothing shifts when it appears */
+.afoot[hidden] {
+  display: flex;
+  visibility: hidden;
+}
+.afoot button.play {
+  background: none; border: 1px solid var(--dim); color: var(--dim);
+  border-radius: 4px; cursor: pointer; font-size: 0.65rem; padding: 0.05rem 0.4rem;
+  font-family: inherit;
+}
+.afoot button.play:hover { border-color: var(--accent); color: var(--accent); }
+/* timeline slider: thin track with a --p progress fill (set from JS) */
+.afoot input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  min-width: 7rem;
+  height: 4px;
+  margin: 0.4rem 0; /* keep the 0.9rem hit area of the old native slider */
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--accent) var(--p, 0%), var(--panel) var(--p, 0%));
+  outline: none;
+  cursor: pointer;
+}
+.afoot input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(122, 162, 255, 0.55);
+  transition: transform 0.1s;
+}
+.afoot input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+.afoot input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(122, 162, 255, 0.55);
+  transition: transform 0.1s;
+}
+.afoot input[type="range"]::-moz-range-thumb:hover { transform: scale(1.3); }
+.afoot .meta { white-space: nowrap; min-width: 10rem; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- composer ---------- */
+
+#composer {
+  border-top: 1px solid var(--panel-2);
+  padding: 0.7rem 1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+#input {
+  width: 100%; resize: vertical; background: var(--panel); color: var(--fg);
+  border: 1px solid var(--panel-2); border-radius: 6px; padding: 0.5rem;
+  font-family: inherit; font-size: 0.86rem;
+}
+#input:focus { outline: 1px solid var(--accent); }
+#controls { display: flex; align-items: center; gap: 0.9rem; font-size: 0.72rem; color: var(--dim); flex-wrap: wrap; }
+#controls input {
+  width: 4.2rem; background: var(--panel); color: var(--fg);
+  border: 1px solid var(--panel-2); border-radius: 4px; padding: 0.15rem 0.3rem; font-family: inherit;
+}
+#reset {
+  margin-left: auto; background: none; border: 1px solid var(--panel-2); color: var(--dim);
+  border-radius: 6px; padding: 0.35rem 0.7rem; font-family: inherit; cursor: pointer;
+}
+#reset:hover { border-color: var(--accent); color: var(--accent); }
+#send {
+  background: var(--accent); color: #0b0e14; border: none;
+  border-radius: 6px; padding: 0.4rem 1rem; font-family: inherit; font-weight: 600; cursor: pointer;
+}
+#send:disabled { background: var(--dim); cursor: wait; }
