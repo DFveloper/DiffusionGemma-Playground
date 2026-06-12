@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 AS build
+FROM ubuntu:26.04 AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         vulkan-tools \
         glslang-tools \
         libshaderc-dev \
+        ca-certificates \
+    && update-ca-certificates
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
@@ -24,7 +26,7 @@ RUN cmake -B build -G Ninja \
         -DBUILD_SHARED_LIBS=OFF \
  && cmake --build build -j --target llama-diffusion-cli
 
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libgomp1 \
