@@ -1,5 +1,7 @@
 # DiffusionGemma-Playground
 
+https://github.com/user-attachments/assets/8fa6ba74-7f14-4ad3-bcd0-6f56f8910be3
+
 Run **DiffusionGemma 26B-A4B** — a block-diffusion *text* model on a Gemma MoE
 backbone that generates by iterative denoising instead of token-by-token — in
 Docker, with a browser chat UI where every reply denoises live inside its
